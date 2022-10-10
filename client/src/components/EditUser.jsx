@@ -1,8 +1,7 @@
 import { FormGroup, FormControl, InputLabel, Input, Typography, styled, Button } from "@mui/material";
-import { addUser } from '../service/api.js' 
-import { useState } from "react";
-import {useNavigate} from 'react-router-dom';
-
+import { addUser, getUser } from '../service/api.js' 
+import { useState, useEffect } from "react";
+import {useNavigate, useParams} from 'react-router-dom';
 
 
 const Container = styled(FormGroup)`
@@ -21,29 +20,34 @@ const defaultValue = {
     phone: '',
 }
 
-const AddUser = () => {
+const EditUser = () => {
     const [user, setUser] = useState(defaultValue);
 
     const navigate = useNavigate();
 
-    const onValueChange = (e) => {
-        console.log(e.target.name, e.target.value)
-        setUser({...user, [e.target.name]: e.target.value })
-        console.log(user)
+    const {id} = useParams();
+
+    useEffect(() => {
+        loadUserDetails();
+    }, []);
+
+    const loadUserDetails = async () => {
+        const response = await getUser(id)
     }
 
-    const addUserDetails = async (name, username, email, phone) => {
-        if(name && username && email && phone){
-            await addUser(user);
-        navigate('/all')
-        }
-        else{
-            alert("Please enter all fields")
-        }
+    const onValueChange = (e) => {
+        setUser({...user, [e.target.name]: e.target.value })
     }
+
+    const addUserDetails = async () => {
+        await addUser(user);
+        navigate('/all')
+    }
+
+    
     return(
         <Container>
-            <Typography variant="h4">Add User</Typography>
+            <Typography variant="h4">Edit User</Typography>
             <FormControl>
                 <InputLabel>Name</InputLabel>
                 <Input onChange={(e) => onValueChange(e)} name='name'/>
@@ -61,10 +65,10 @@ const AddUser = () => {
                 <Input onChange={(e) => onValueChange(e)} name='phone'/>
             </FormControl>
             <FormControl>
-                <Button variant="contained" onClick={() => addUserDetails()}>Add User </Button>
+                <Button variant="contained" onClick={() => addUserDetails()} >Edit User</Button>
             </FormControl>
         </Container>
     )
 }
 
-export default AddUser;
+export default EditUser;
